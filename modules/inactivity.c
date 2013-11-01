@@ -509,6 +509,13 @@ static gpointer device_inactive_filter(gpointer data)
 		goto EXIT;
 	}
 
+	if (device_inactive == FALSE) {
+		if (call_state != CALL_STATE_RINGING)
+			execute_datapipe_output_triggers(&led_pattern_deactivate_pipe, "PatternCommunicationCall", USE_INDATA);
+		execute_datapipe_output_triggers(&led_pattern_deactivate_pipe, "PatternCommunicationSMS", USE_INDATA);
+		execute_datapipe_output_triggers(&led_pattern_deactivate_pipe, "PatternCommunicationIM", USE_INDATA);
+	}
+
 	/* tklock must be off, or there must be alarms or calls */
 	if( submode & MCE_TKLOCK_SUBMODE ) {
 		gboolean have_alarms = FALSE;
