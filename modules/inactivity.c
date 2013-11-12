@@ -623,6 +623,22 @@ EXIT:
 	return;
 }
 
+/** Export real user activity to D-Bus signal
+ *
+ * @param data Unused
+ */
+static void user_activity_trigger(gconstpointer data)
+{
+	(void)data; // the data is irrelevant
+	DBusMessage *msg = NULL;
+
+	msg = dbus_new_signal(MCE_SIGNAL_PATH, MCE_SIGNAL_IF, MCE_USER_ACTIVITY_SIG);
+	if (msg == NULL)
+		return;
+
+	dbus_send_message(msg);
+}
+
 /**
  * Init function for the inactivity module
  *
@@ -643,6 +659,8 @@ const gchar *g_module_check_init(GModule *module)
 					  proximity_sensor_trigger);
 	append_output_trigger_to_datapipe(&inactivity_timeout_pipe,
 					  inactivity_timeout_trigger);
+	append_output_trigger_to_datapipe(&user_activity_pipe,
+					  user_activity_trigger);
 
 	/* get_inactivity_status */
 	if (mce_dbus_handler_add(MCE_REQUEST_IF,
@@ -687,6 +705,8 @@ void g_module_unload(GModule *module)
 	(void)module;
 
 	/* Remove triggers/filters from datapipes */
+	remove_output_trigger_from_datapipe(&user_activity_pipe,
+					    user_activity_trigger);
 	remove_output_trigger_from_datapipe(&inactivity_timeout_pipe,
 					    inactivity_timeout_trigger);
 	remove_output_trigger_from_datapipe(&proximity_sensor_pipe,
